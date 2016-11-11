@@ -1,0 +1,4 @@
+使用libhttpd与线程池搭建一个轻量级的webserver。
+目标：
+1、并发数量暂定1W
+2、通过配置文件配置server(指定index)
