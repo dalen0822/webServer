@@ -554,6 +554,7 @@ void _httpd_send404(httpd *server, request *r)
 		/*
 		 * There's a custom C 404 handler defined with httpdAddC404Content
 		 */
+		 printf("[%s:%d] here##\n",__func__,__LINE__);
 		(server->handle404->function)(server, r);
 	}
 	else {

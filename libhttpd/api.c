@@ -972,6 +972,7 @@ void httpdProcessRequest(httpd *server, request *r)
 	r->response.responseLength = 0;
 	strncpy(dirName, httpdRequestPath(r), HTTP_MAX_URL);
 	dirName[HTTP_MAX_URL-1]=0;
+    printf("dirName:%s.\n",dirName);
 	cp = strrchr(dirName, '/');
 	if (cp == NULL)
 	{
@@ -987,6 +988,7 @@ void httpdProcessRequest(httpd *server, request *r)
 	dir = _httpd_findContentDir(server, dirName, HTTP_FALSE);
 	if (dir == NULL)
 	{
+        printf("dir is null\n");
 		_httpd_send404(server, r);
 		_httpd_writeAccessLog(server, r);
 		return;
@@ -994,6 +996,7 @@ void httpdProcessRequest(httpd *server, request *r)
 	entry = _httpd_findContentEntry(r, dir, entryName);
 	if (entry == NULL)
 	{
+        printf("entry is null\n");
 		_httpd_send404(server, r);
 		_httpd_writeAccessLog(server, r);
 		return;
@@ -1010,6 +1013,7 @@ void httpdProcessRequest(httpd *server, request *r)
 	{
 		case HTTP_C_FUNCT:
 		case HTTP_C_WILDCARD:
+            printf("[%s:%d] callback funtion\n\n",__func__,__LINE__);
 			(entry->function)(server, r);
 			break;
 
