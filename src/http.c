@@ -13,19 +13,13 @@
 #include "http.h"
 #include "threadpool.h"
 
-void http_callback_404(httpd *webserver, request *r) {
-    send_http_page(r,"xxx","ooooo");
-}
 
 
-/** @brief http template page read only once
- */
-static char* get_http_page()
+static char* get_http_page(const char *path)
 {
     struct stat stat_info;
     int fd;
     ssize_t written;
-    char htmlmsgfile[64] = "/dalen/GitHub/webServer/html/index.html";
     static struct {
         char    buff[10240];
         int     len;
@@ -40,12 +34,12 @@ static char* get_http_page()
             return safe_strdup(page.buff);
         } else {
             printf("HTML has loaded, but return size 0, maybe file %s can not find\n",
-                  htmlmsgfile);
+                  path);
             return NULL;
         }
     }
 
-    fd = open(htmlmsgfile, O_RDONLY);
+    fd = open(path, O_RDONLY);
     if (fd == -1) {
         page.loaded = 1;
         page.len= -1;
@@ -80,11 +74,10 @@ static char* get_http_page()
     return safe_strdup(page.buff);
 }
 
-void send_http_page(request * r, const char *title, const char *message)
+void send_http_page(request * r, const char *title, const char *message,const char *path)
 {
     // read http page from memory direct, only load once
-    char *buffer = get_http_page();
-    //s_config *config = config_get_config();
+    char *buffer = get_http_page(path);
 
     if(!buffer)
         return;
@@ -94,5 +87,14 @@ void send_http_page(request * r, const char *title, const char *message)
     httpdAddVariable(r, "nodeID", "flb");
     httpdOutput(r, buffer);
     free(buffer);
+}
+
+void http_callback_about(httpd *webserver, request *r)
+{
+    send_http_page(r, "About ", "This is  version <strong>""1.0.0.0""</strong>","./html/about");
+}
+
+void http_callback_404(httpd *webserver, request *r) {
+    send_http_page(r,"xxx","ooooo","./html/404");
 }
 

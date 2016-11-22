@@ -116,15 +116,32 @@ void init_config(const char *file_config) {
     return ;
 }
 
-void init_webServer_config(const char *config_file) {
+void init_webServer(const char *config_file) {
     if(!webserver) {
         DEBUGP("Could not init web server!\n");
     }
     char tmpbuf[BUFF_LEN_256] = "";
+    FILE *fp = NULL;
     get_file_value(config_file,"web_path",tmpbuf);
     //set basePath
     httpdSetFileBase(webserver,tmpbuf);
-    httpdAddFileContent(webserver,"/","ifeng.html",HTTP_TRUE,NULL,"ifeng.html");
+    //set log
+    get_file_value(config_file,"err_log",tmpbuf);
+    if((fp = fopen(tmpbuf,"w+")) != NULL) {
+        httpdSetErrorLog(webserver,fp);
+    }
+    get_file_value(config_file,"access_log",tmpbuf);
+    if((fp = fopen(tmpbuf,"w+")) != NULL) {
+        httpdSetAccessLog(webserver,fp);
+    }
+
+    //设置可访问根目录下的所有文件
+    httpdAddWildcardContent(webserver,"/",NULL,"html");
+    httpdAddWildcardContent(webserver,"/pic",NULL,"html/pic");
+    //设置默认页
+    httpdAddFileContent(webserver,"/","",HTTP_TRUE,NULL,"html/index.html");
+    //
+    httpdAddCContent(webserver,"/", "about", HTTP_FALSE,NULL,http_callback_about);//get /about
 }
 void register_callback_fun() {
     httpdAddC404Content(webserver, http_callback_404);
@@ -145,7 +162,7 @@ int main(int argc,char *argv[])
         DEBUGP("Could not create web server: %s\n", strerror(errno));
         exit(1);
     }
-    init_webServer_config(argv[1]);
+    init_webServer(argv[1]);
     register_callback_fun();
     DEBUGP("[%s:%d ] web server start: %s:%d.\n",__func__,__LINE__,config.server_addr,config.server_port);
     wait_for_connect();
