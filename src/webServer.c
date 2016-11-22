@@ -80,7 +80,7 @@ void wait_for_connect() {
             DEBUGP("FATAL: httpdGetConnection returned unexpected value %d, exiting.\n", webserver->lastError);
             //termination_handler(0);
         }
-        else if (r != NULL) {
+        else if (r != NULL && strcmp(r->clientAddr,"0.0.0.0") != 0) {
             /*
                      * We got a connection
                      *
@@ -103,6 +103,10 @@ void wait_for_connect() {
             /* webserver->lastError should be 2 */
             /* XXX We failed an ACL.... No handling because
                     * we don't set any... */
+            if(r != NULL) {
+                DEBUGP("Calling httpdProcessRequest() for %s\n", r->clientAddr);
+                httpdEndRequest(r);
+            }
         }
     }
 
@@ -153,7 +157,7 @@ int main(int argc,char *argv[])
         return 0;
     }
     init_config(argv[1]);
-    
+    init_signal();
     if(!(g_pool = threadpool_create(TRHEAD_SIZE, QUEUE_SIZE, 0))) {
         DEBUGP("create thread pool failed\n");
         //termination_handler(0);

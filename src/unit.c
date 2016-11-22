@@ -2,8 +2,11 @@
 #include "stdio.h"
 #include <stdlib.h>
 #include <string.h>
+#include "execinfo.h"
+#include "signal.h"
+#include "threadpool.h"
 
-
+extern threadpool_t *g_pool;
 /*************************************************
 Function:     trim_string
 Description: 去掉行首空格；\n \ r \t 字符
@@ -78,3 +81,42 @@ int get_file_value(const char *file_name,char *name, char *value){
 	return -1;
 }
 
+
+void stack_dump(int sig) {
+    #define SIZE 32
+    void *buffer[SIZE];
+    char **stacks = NULL;
+    int size = 0,i;
+
+    size = backtrace(buffer,SIZE);
+    stacks = backtrace_symbols(buffer,size);
+    if(stacks) {
+        printf("receive signal %d.\n",sig);
+        for(i = 0;i != size; ++i) {
+            printf("[ stack info ] : %s.\n",stacks[i]);
+        }
+        free(stacks);
+    }
+}
+
+void ignore_signal(int sig){
+    stack_dump(sig);
+}
+
+void exit_signal(int sig) {
+    stack_dump(sig);
+    //do clean work
+    threadpool_destroy(g_pool,1);
+    exit(0);
+}
+void init_signal() {
+    signal(SIGINT,exit_signal);
+    signal(SIGSEGV,exit_signal);
+    signal(SIGALRM,ignore_signal);
+    signal(SIGHUP,stack_dump);
+    signal(SIGPIPE,ignore_signal);
+    signal(SIGTERM,exit_signal);
+    signal(SIGQUIT,exit_signal);
+    signal(SIGILL,ignore_signal);
+    signal(SIGCHLD,exit_signal); 
+}
