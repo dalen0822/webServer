@@ -1040,14 +1040,18 @@ void httpdSetAccessLog(server, fp)
 	httpd	*server;
 	FILE	*fp;
 {
-	server->accessLog = fp;
+    if(fp){
+	    server->accessLog = fp;
+    }
 }
 
 void httpdSetErrorLog(server, fp)
 	httpd	*server;
 	FILE	*fp;
 {
-	server->errorLog = fp;
+    if(fp) {
+	    server->errorLog = fp;
+    }
 }
 
 void httpdAuthenticate(request *r, const char *realm)
