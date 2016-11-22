@@ -158,8 +158,7 @@ void _httpd_writeAccessLog(httpd *server, request *r)
 	struct 	tm *timePtr;
 	time_t	clock;
 	int	responseCode;
-
-
+    
 	if (server->accessLog == NULL)
 		return;
 	clock = time(NULL);
@@ -170,6 +169,7 @@ void _httpd_writeAccessLog(httpd *server, request *r)
 		r->clientAddr, dateBuf, httpdRequestMethodName(r), 
 		httpdRequestPath(r), responseCode, 
 		r->response.responseLength);
+    fflush(server->accessLog);/*write in file*/
 }
 
 void _httpd_writeErrorLog(httpd *server, request *r, char *level, char *message)
@@ -194,6 +194,7 @@ void _httpd_writeErrorLog(httpd *server, request *r, char *level, char *message)
 		fprintf(server->errorLog, "[%s] [%s] %s\n",
 			dateBuf, level, message);
 	}
+    fflush(server->errorLog);
 }
 
 
