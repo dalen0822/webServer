@@ -276,7 +276,7 @@ threadpool_free(threadpool_t *pool)
     if(pool == NULL || pool->started > 0) {
         return -1;
     }
-
+    
     /* Did we manage to allocate ? */
     if(pool->threads) {
         free(pool->threads);
@@ -353,7 +353,7 @@ void *threadpool_dump(threadpool_t *pool)
             waiting_count++;
     }
 
-    printf("Wifidog ThreadPool Dump:\n");
+    printf("ThreadPool Dump:\n");
     printf("=============================================\n");
     printf("| Thread   Running  Waiting  Queue    Task\n");
     printf("+--------+--------+--------+--------+--------\n");
