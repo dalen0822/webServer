@@ -5,7 +5,7 @@ INCLUDES=-I . \
 
 LIBS=-L../libhttpd -lhttpd -lpthread
 
-CC_FLAGS=-O0 -fPIC 
+CC_FLAGS=-O0 -fPIC -g -rdynamic 
 
 CXX_INCLUDES= 
 
